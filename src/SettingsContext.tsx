@@ -13,6 +13,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         { plate: 45, color: "blue" },
         { plate: 35, color: "default" },
         { plate: 25, color: "green" },
+        { plate: 5, color: "red" },
       ],
       exerciseTypes: [
         { id: 1, name: "Deadlift" },

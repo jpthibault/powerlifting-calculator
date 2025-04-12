@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   Container,
-  Grid,
   TextField,
   Typography,
   Card,
@@ -25,7 +24,7 @@ interface WeightProps {
 }
 
 // Ensure the `in` prop is dynamically updated for all items
-const Weight: React.FC<WeightProps> = ({ plate, direction, delay = 0 }) => {
+const Plate: React.FC<WeightProps> = ({ plate, direction, delay = 0 }) => {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -44,7 +43,7 @@ const Weight: React.FC<WeightProps> = ({ plate, direction, delay = 0 }) => {
     >
       <Box
         sx={{
-          width: "40px",
+          minWidth: 40,
           height: "40px",
           backgroundColor: "#f0f0f0",
           color: "#333",
@@ -52,8 +51,8 @@ const Weight: React.FC<WeightProps> = ({ plate, direction, delay = 0 }) => {
           alignItems: "center",
           justifyContent: "center",
           borderRadius: "4px",
-          margin: "0 4px",
           border: `2px solid ${borderColor}`,
+          fontSize: 12,
         }}
       >
         {plate}
@@ -154,6 +153,7 @@ const App: React.FC = () => {
         alignItems: "center",
         justifyContent: "center",
         minHeight: "100vh",
+        minWidth: 600,
         backgroundColor: "#f5f5f5",
         color: "#333",
         position: "relative",
@@ -245,7 +245,7 @@ const App: React.FC = () => {
                             spacing={1} // Add spacing between items
                           >
                             {breakdown.map((plate, index) => (
-                              <Weight
+                              <Plate
                                 key={`${plate}-${index}`}
                                 plate={plate}
                                 direction="right"
@@ -260,7 +260,8 @@ const App: React.FC = () => {
                             height: "4px",
                             backgroundColor: "#ccc",
                             margin: "0 8px",
-                            maxWidth: "200px",
+                            maxWidth: 200,
+                            minWidth: 120,
                             position: "relative",
                           }}
                         >
@@ -286,9 +287,10 @@ const App: React.FC = () => {
                           direction="row"
                           alignItems="center"
                           justifyContent="center"
+                          spacing={1}
                         >
                           {breakdown.map((plate, index) => (
-                            <Weight
+                            <Plate
                               key={`${plate}-${index + breakdown.length}`}
                               plate={plate}
                               direction="left"
