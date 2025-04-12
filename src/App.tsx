@@ -8,34 +8,53 @@ import {
   Typography,
   Card,
   CardContent,
+  Slide,
+  Stack,
 } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { TransitionGroup } from "react-transition-group";
 
 interface WeightProps {
   plate: number;
-  direction: "left" | "right"; // New prop to specify transition direction
+  direction: "left" | "right";
+  delay?: number; // New optional delay attribute
 }
 
-const Weight: React.FC<WeightProps> = ({ plate, direction }) => {
+// Ensure the `in` prop is dynamically updated for all items
+const Weight: React.FC<WeightProps> = ({ plate, direction, delay = 0 }) => {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShow(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
   const borderColor = plate === 45 ? "blue" : plate === 25 ? "green" : "#ccc";
+
   return (
-    <Box
-      className={`weight-animation-${plate} weight-${direction}`} // Include direction in className
-      sx={{
-        width: "40px",
-        height: "40px",
-        backgroundColor: "#f0f0f0",
-        color: "#333",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: "4px",
-        margin: "0 4px",
-        border: `2px solid ${borderColor}`,
-      }}
+    <Slide
+      direction={direction}
+      in={show} // Dynamically update the `in` prop
+      mountOnEnter
+      unmountOnExit
     >
-      {plate}
-    </Box>
+      <Box
+        sx={{
+          width: "40px",
+          height: "40px",
+          backgroundColor: "#f0f0f0",
+          color: "#333",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "4px",
+          margin: "0 4px",
+          border: `2px solid ${borderColor}`,
+        }}
+      >
+        {plate}
+      </Box>
+    </Slide>
   );
 };
 
@@ -117,6 +136,9 @@ const App: React.FC = () => {
     return { totalWeight: roundedWeight, perSide };
   };
 
+  // Define a constant for the transition delay
+  const TRANSITION_DELAY = 500; // Delay in milliseconds
+
   return (
     <Container
       maxWidth="md"
@@ -182,56 +204,76 @@ const App: React.FC = () => {
                   >
                     {percentage}%
                     <ArrowForwardIcon sx={{ mx: 1, color: "#333" }} />
-                    {totalWeight} lbs
+                    {Math.round(weights[activeTab] * (percentage / 100))} lbs
                   </Typography>
                   {totalWeight > 0 && (
-                    <>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="center"
+                      spacing={1}
+                      mt={3}
+                    >
+                      <TransitionGroup>
+                        <Stack
+                          direction="row-reverse" // Use row-reverse to render biggest numbers first
+                          alignItems="center"
+                          justifyContent="center"
+                          spacing={1} // Add spacing between items
+                        >
+                          {breakdown.map((plate, index) => (
+                            <Weight
+                              key={`${plate}-${index}`}
+                              plate={plate}
+                              direction="right"
+                              delay={index * TRANSITION_DELAY}
+                            />
+                          ))}
+                        </Stack>
+                      </TransitionGroup>
                       <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        mt={3}
+                        sx={{
+                          flexGrow: 1,
+                          height: "4px",
+                          backgroundColor: "#ccc",
+                          margin: "0 8px",
+                          maxWidth: "200px",
+                          position: "relative",
+                        }}
                       >
-                        {[...breakdown].reverse().map((plate, index) => (
-                          <Weight key={index} plate={plate} direction="left" />
-                        ))}
-                        <Box
+                        <Typography
+                          variant="body2"
                           sx={{
-                            flexGrow: 1,
-                            height: "4px",
-                            backgroundColor: "#ccc",
-                            margin: "0 8px",
-                            maxWidth: "200px",
-                            position: "relative",
+                            position: "absolute",
+                            top: "-8px",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            backgroundColor: "#f5f5f5",
+                            padding: "0 4px",
+                            borderRadius: "4px",
                           }}
                         >
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              position: "absolute",
-                              top: "-20px",
-                              left: "50%",
-                              transform: "translateX(-50%)",
-                              backgroundColor: "#f5f5f5",
-                              padding: "0 4px",
-                              borderRadius: "4px",
-                            }}
-                          >
-                            {breakdown.reduce(
-                              (sum, plate) => sum + plate * 2,
-                              45
-                            )}
-                          </Typography>
-                        </Box>
+                          {breakdown.reduce(
+                            (sum, plate) => sum + plate * 2,
+                            45
+                          )}
+                        </Typography>
+                      </Box>
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
                         {breakdown.map((plate, index) => (
                           <Weight
-                            key={index + breakdown.length}
+                            key={`${plate}-${index + breakdown.length}`}
                             plate={plate}
-                            direction="right"
+                            direction="left"
+                            delay={index * TRANSITION_DELAY} // Use constant for delay
                           />
                         ))}
-                      </Box>
-                    </>
+                      </Stack>
+                    </Stack>
                   )}
                 </CardContent>
               </Card>
