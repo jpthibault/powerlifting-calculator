@@ -1,6 +1,17 @@
 import React, { createContext, useContext, useState } from "react";
 
-const SettingsContext = createContext(null);
+interface Settings {
+  delay: number;
+  borderColors: { plate: number; color: string }[];
+  exerciseTypes: { id: number; name: string }[];
+}
+
+interface SettingsContextType {
+  settings: Settings;
+  updateSettings: (newSettings: Settings) => void;
+}
+
+const SettingsContext = createContext<SettingsContextType | null>(null);
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -26,7 +37,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       : defaultSettings;
   });
 
-  const updateSettings = (newSettings) => {
+  const updateSettings = (newSettings: Settings) => {
     setSettings(newSettings);
     localStorage.setItem("settings", JSON.stringify(newSettings));
   };
