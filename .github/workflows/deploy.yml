@@ -1,2 +1,0 @@
-- name: Rename index.html to 404.html
-  run: mv dist/index.html dist/404.html
