@@ -153,7 +153,7 @@ const App: React.FC = () => {
         alignItems: "center",
         justifyContent: "center",
         minHeight: "100vh",
-        minWidth: 600,
+        minWidth: 900,
         backgroundColor: "#f5f5f5",
         color: "#333",
         position: "relative",
