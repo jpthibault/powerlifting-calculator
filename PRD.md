@@ -10,8 +10,6 @@ To create a simple one-page web application that helps powerlifters calculate tr
 
 ## Features
 
-## Features
-
 ### 1. Input Field
 - **Description:** A single text field where users can input a number (e.g., their one-rep max or target weight).
 - **Validation:** 
@@ -39,9 +37,26 @@ To create a simple one-page web application that helps powerlifters calculate tr
     `((total * percentage) - 45) / 2`  
     - Assume the barbell weighs 45 lbs.
     - Round the result to the nearest 0.5 lbs for practical loading.
+  - **Animation:**
+    - Weights slide in sequentially from their respective sides (left or right) using Material-UI's `Slide` component.
+    - The animation delay is dynamically calculated to ensure sequential transitions.
 
 ### 4. Responsive Design
 - The app should be mobile-friendly and work well on both desktop and mobile devices.
+
+### 5. Settings Page
+- **Description:** A dedicated page where users can modify application settings.
+- **Features:**
+  - Adjust animation delay (in milliseconds).
+  - Change the border color for weights.
+  - Select the default exercise type (Deadlift, Bench Press, or Back Squat).
+- **Behavior:**
+  - All settings are stored in `localStorage` and persist across sessions.
+  - Changes are dynamically applied to the application.
+- **UI Elements:**
+  - Input fields for numeric and text values.
+  - Dropdown menu for selecting exercise type.
+  - Save button to confirm changes.
 
 ---
 
@@ -58,36 +73,23 @@ To create a simple one-page web application that helps powerlifters calculate tr
    - The percentage (e.g., "95%").
    - The total weight (e.g., "285 lbs").
    - The weight breakdown for each side of the barbell (e.g., "120 lbs per side").
+   - Animated weights sliding in from their respective sides.
 
 ---
 
 ## Technical Requirements
 
 ### Frontend
-- **Framework:** Astro (for static site generation).
-- **Styling:** Use Tailwind CSS or a similar CSS framework for quick and responsive design.
-- **JavaScript:** For dynamic calculations and input validation.
-
-### Backend
-- No backend is required; all calculations can be done client-side.
+- **Framework:** React with Vite for fast development and build.
+- **Styling:** Material-UI for components and animations, with Tailwind CSS for additional styling.
+- **JavaScript/TypeScript:** For dynamic calculations and input validation.
 
 ### Deployment
-- Deploy the app using a static hosting service like Vercel, Netlify, or GitHub Pages.
-
----
-
-## Wireframe
-+--------------------------------------+ | [Deadlift] [Bench Press] [Back Squat]| +--------------------------------------+
-
-
-+--------------------------------------+ | Enter your max weight: [ 300 lbs ] | +--------------------------------------+
-
-+-------------------+ +-------------------+ | 95% | | 90% | | Total: 285 lbs | | Total: 270 lbs | | Per Side: 120 | | Per Side: 112.5 | +-------------------+ +-------------------+
-
-+-------------------+ +-------------------+ | 85% | | 80% | | Total: 255 lbs | | Total: 240 lbs | | Per Side: 105 | | Per Side: 97.5 | +-------------------+ +-------------------+
-
-... (continues down to 40%)
-
+- **Hosting:** GitHub Pages.
+- **Build Process:**
+  - Use `vite build` to generate production-ready files.
+  - Deploy using `gh-pages` package.
+  - Ensure SPA routing by renaming `index.html` to `404.html` during deployment.
 
 ---
 
@@ -97,6 +99,7 @@ To create a simple one-page web application that helps powerlifters calculate tr
 2. The weight breakdown should be accurate and rounded to the nearest 0.5 lbs.
 3. The app should be visually appealing and responsive on all devices.
 4. Input validation should prevent invalid entries (e.g., letters, negative numbers).
+5. Weights should animate sequentially from their respective sides when displayed.
 
 ---
 
@@ -104,3 +107,4 @@ To create a simple one-page web application that helps powerlifters calculate tr
 - Add a dropdown to switch between pounds (lbs) and kilograms (kg).
 - Allow users to customize the barbell weight (default: 45 lbs).
 - Add a feature to save or share the results.
+- Include additional animations or visual effects for better user experience.

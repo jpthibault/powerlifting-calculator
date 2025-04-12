@@ -10,9 +10,13 @@ import {
   CardContent,
   Slide,
   Stack,
+  Fade,
 } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { TransitionGroup } from "react-transition-group";
+import SettingsIcon from "@mui/icons-material/Settings";
+import { useSettings } from "../SettingsContext";
+import Settings from "./Settings";
 
 interface WeightProps {
   plate: number;
@@ -74,18 +78,18 @@ const calculateWeightBreakdown = (weight: number): number[] => {
 };
 
 const App: React.FC = () => {
+  const { settings } = useSettings();
   const [weights, setWeights] = useState<{
-    Deadlift: number;
-    BenchPress: number;
-    BackSquat: number;
+    [key: string]: number;
   }>({
     Deadlift: 0,
     BenchPress: 0,
     BackSquat: 0,
   });
-  const [activeTab, setActiveTab] = useState<
-    "Deadlift" | "BenchPress" | "BackSquat"
-  >("Deadlift");
+
+  const [activeTab, setActiveTab] = useState(
+    settings.exerciseTypes[0]?.name || ""
+  );
 
   const [delayedWeights, setDelayedWeights] = useState(weights);
 
@@ -104,6 +108,10 @@ const App: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    setActiveTab(settings.exerciseTypes[0]?.name || "");
+  }, [settings]);
+
   const handleWeightInput = (value: string) => {
     const weight = Number(value);
     const updatedWeights = { ...weights, [activeTab]: weight };
@@ -111,11 +119,6 @@ const App: React.FC = () => {
     localStorage.setItem("weights", JSON.stringify(updatedWeights));
   };
 
-  const tabs: ("Deadlift" | "BenchPress" | "BackSquat")[] = [
-    "Deadlift",
-    "BenchPress",
-    "BackSquat",
-  ];
   const percentages = [95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40];
 
   const roundToNearestHalf = (num: number): number => {
@@ -139,9 +142,11 @@ const App: React.FC = () => {
   // Define a constant for the transition delay
   const TRANSITION_DELAY = 500; // Delay in milliseconds
 
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   return (
     <Container
-      maxWidth="md"
+      maxWidth="lg"
       sx={{
         py: 4,
         display: "flex",
@@ -151,24 +156,41 @@ const App: React.FC = () => {
         minHeight: "100vh",
         backgroundColor: "#f5f5f5",
         color: "#333",
+        position: "relative",
       }}
     >
-      <Box textAlign="center" mb={4}>
+      <Button
+        onClick={() => setIsSettingsOpen(true)}
+        sx={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          minWidth: "auto",
+          padding: 0,
+        }}
+      >
+        <SettingsIcon fontSize="large" />
+      </Button>
+      <Settings
+        open={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
+      <Box textAlign="center" mt={4} mb={4}>
         <Typography variant="h4" component="h1" gutterBottom>
           Powerlifting Percentage Calculator
         </Typography>
       </Box>
 
       <Box display="flex" justifyContent="center" mb={4}>
-        {tabs.map((tab) => (
+        {settings.exerciseTypes.map((type) => (
           <Button
-            key={tab}
-            variant={activeTab === tab ? "contained" : "outlined"}
+            key={type.id}
+            variant={activeTab === type.name ? "contained" : "outlined"}
             color="primary"
-            onClick={() => setActiveTab(tab)}
+            onClick={() => setActiveTab(type.name)}
             sx={{ mx: 1 }}
           >
-            {tab}
+            {type.name}
           </Button>
         ))}
       </Box>
@@ -185,102 +207,104 @@ const App: React.FC = () => {
         />
       </Box>
 
-      <Grid container spacing={2} justifyContent="center" alignItems="center">
-        {percentages.map((percentage) => {
-          const { totalWeight, perSide } = calculateWeight(percentage);
-          if (totalWeight < 45) return null;
+      <TransitionGroup style={{ width: "100%" }}>
+        <Stack spacing={2}>
+          {percentages.map((percentage) => {
+            const { totalWeight, perSide } = calculateWeight(percentage);
+            if (totalWeight < 45) return null;
 
-          const breakdown = calculateWeightBreakdown(perSide);
+            const breakdown = calculateWeightBreakdown(perSide);
 
-          return (
-            <Grid size={{ xs: 12 }} key={percentage}>
-              <Card>
-                <CardContent>
-                  <Typography
-                    variant="h6"
-                    component="h2"
-                    display="flex"
-                    alignItems="center"
-                  >
-                    {percentage}%
-                    <ArrowForwardIcon sx={{ mx: 1, color: "#333" }} />
-                    {Math.round(weights[activeTab] * (percentage / 100))} lbs
-                  </Typography>
-                  {totalWeight > 0 && (
-                    <Stack
-                      direction="row"
+            return (
+              <Fade in>
+                <Card>
+                  <CardContent>
+                    <Typography
+                      variant="h6"
+                      component="h2"
+                      display="flex"
                       alignItems="center"
-                      justifyContent="center"
-                      spacing={1}
-                      mt={3}
                     >
-                      <TransitionGroup>
-                        <Stack
-                          direction="row-reverse" // Use row-reverse to render biggest numbers first
-                          alignItems="center"
-                          justifyContent="center"
-                          spacing={1} // Add spacing between items
-                        >
-                          {breakdown.map((plate, index) => (
-                            <Weight
-                              key={`${plate}-${index}`}
-                              plate={plate}
-                              direction="right"
-                              delay={index * TRANSITION_DELAY}
-                            />
-                          ))}
-                        </Stack>
-                      </TransitionGroup>
-                      <Box
-                        sx={{
-                          flexGrow: 1,
-                          height: "4px",
-                          backgroundColor: "#ccc",
-                          margin: "0 8px",
-                          maxWidth: "200px",
-                          position: "relative",
-                        }}
-                      >
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            position: "absolute",
-                            top: "-8px",
-                            left: "50%",
-                            transform: "translateX(-50%)",
-                            backgroundColor: "#f5f5f5",
-                            padding: "0 4px",
-                            borderRadius: "4px",
-                          }}
-                        >
-                          {breakdown.reduce(
-                            (sum, plate) => sum + plate * 2,
-                            45
-                          )}
-                        </Typography>
-                      </Box>
+                      {percentage}%
+                      <ArrowForwardIcon sx={{ mx: 1, color: "#333" }} />
+                      {Math.round(weights[activeTab] * (percentage / 100))} lbs
+                    </Typography>
+                    {totalWeight > 0 && (
                       <Stack
                         direction="row"
                         alignItems="center"
                         justifyContent="center"
+                        spacing={1}
+                        mt={3}
                       >
-                        {breakdown.map((plate, index) => (
-                          <Weight
-                            key={`${plate}-${index + breakdown.length}`}
-                            plate={plate}
-                            direction="left"
-                            delay={index * TRANSITION_DELAY} // Use constant for delay
-                          />
-                        ))}
+                        <TransitionGroup>
+                          <Stack
+                            direction="row-reverse" // Use row-reverse to render biggest numbers first
+                            alignItems="center"
+                            justifyContent="center"
+                            spacing={1} // Add spacing between items
+                          >
+                            {breakdown.map((plate, index) => (
+                              <Weight
+                                key={`${plate}-${index}`}
+                                plate={plate}
+                                direction="right"
+                                delay={index * TRANSITION_DELAY}
+                              />
+                            ))}
+                          </Stack>
+                        </TransitionGroup>
+                        <Box
+                          sx={{
+                            flexGrow: 1,
+                            height: "4px",
+                            backgroundColor: "#ccc",
+                            margin: "0 8px",
+                            maxWidth: "200px",
+                            position: "relative",
+                          }}
+                        >
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              position: "absolute",
+                              top: "-8px",
+                              left: "50%",
+                              transform: "translateX(-50%)",
+                              backgroundColor: "#f5f5f5",
+                              padding: "0 4px",
+                              borderRadius: "4px",
+                            }}
+                          >
+                            {breakdown.reduce(
+                              (sum, plate) => sum + plate * 2,
+                              45
+                            )}
+                          </Typography>
+                        </Box>
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          justifyContent="center"
+                        >
+                          {breakdown.map((plate, index) => (
+                            <Weight
+                              key={`${plate}-${index + breakdown.length}`}
+                              plate={plate}
+                              direction="left"
+                              delay={index * TRANSITION_DELAY} // Use constant for delay
+                            />
+                          ))}
+                        </Stack>
                       </Stack>
-                    </Stack>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-          );
-        })}
-      </Grid>
+                    )}
+                  </CardContent>
+                </Card>
+              </Fade>
+            );
+          })}
+        </Stack>
+      </TransitionGroup>
     </Container>
   );
 };
