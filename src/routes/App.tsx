@@ -25,6 +25,7 @@ interface WeightProps {
 
 // Ensure the `in` prop is dynamically updated for all items
 const Plate: React.FC<WeightProps> = ({ plate, direction, delay = 0 }) => {
+  const { settings } = useSettings();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -32,7 +33,8 @@ const Plate: React.FC<WeightProps> = ({ plate, direction, delay = 0 }) => {
     return () => clearTimeout(timer);
   }, [delay]);
 
-  const borderColor = plate === 45 ? "blue" : plate === 25 ? "green" : "#ccc";
+  const borderColor =
+    settings.borderColors.find((b) => b.plate === plate)?.color || "#ccc";
 
   return (
     <Slide

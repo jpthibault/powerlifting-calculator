@@ -8,6 +8,7 @@ import {
   Modal,
 } from "@mui/material";
 import { useSettings } from "../SettingsContext";
+import defaultSettings from "../defaultSettings";
 
 const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({
   open,
@@ -117,6 +118,18 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({
           }}
         >
           Save Settings
+        </Button>
+
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => {
+            updateSettings(defaultSettings);
+            localStorage.removeItem("settings");
+          }}
+          sx={{ mt: 2 }}
+        >
+          Reset to Default
         </Button>
       </Container>
     </Modal>
