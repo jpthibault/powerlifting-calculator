@@ -25,3 +25,50 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Slow down the weight animations to 3 seconds */
+.weight-animation {
+  animation: fade-slide-in 3s ease-in-out;
+}
+
+@keyframes fade-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Update specific animations for left and right weights */
+.weight-left {
+  animation: slide-in-left 3s ease-in-out;
+}
+
+.weight-right {
+  animation: slide-in-right 3s ease-in-out;
+}
+
+@keyframes slide-in-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

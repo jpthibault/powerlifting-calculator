@@ -11,10 +11,16 @@ import {
 } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
-const Weight = ({ plate }) => {
+interface WeightProps {
+  plate: number;
+  direction: "left" | "right"; // New prop to specify transition direction
+}
+
+const Weight: React.FC<WeightProps> = ({ plate, direction }) => {
   const borderColor = plate === 45 ? "blue" : plate === 25 ? "green" : "#ccc";
   return (
     <Box
+      className={`weight-animation-${plate} weight-${direction}`} // Include direction in className
       sx={{
         width: "40px",
         height: "40px",
@@ -33,9 +39,9 @@ const Weight = ({ plate }) => {
   );
 };
 
-const calculateWeightBreakdown = (weight) => {
+const calculateWeightBreakdown = (weight: number): number[] => {
   const plates = [45, 35, 25, 10, 5, 2.5];
-  const breakdown = [];
+  const breakdown: number[] = [];
 
   plates.forEach((plate) => {
     const count = Math.floor(weight / plate);
@@ -48,13 +54,29 @@ const calculateWeightBreakdown = (weight) => {
   return breakdown;
 };
 
-const App = () => {
-  const [weights, setWeights] = useState({
+const App: React.FC = () => {
+  const [weights, setWeights] = useState<{
+    Deadlift: number;
+    BenchPress: number;
+    BackSquat: number;
+  }>({
     Deadlift: 0,
     BenchPress: 0,
     BackSquat: 0,
   });
-  const [activeTab, setActiveTab] = useState("Deadlift");
+  const [activeTab, setActiveTab] = useState<
+    "Deadlift" | "BenchPress" | "BackSquat"
+  >("Deadlift");
+
+  const [delayedWeights, setDelayedWeights] = useState(weights);
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      setDelayedWeights(weights);
+    }, 300);
+
+    return () => clearTimeout(delay);
+  }, [weights]);
 
   useEffect(() => {
     const storedWeights = localStorage.getItem("weights");
@@ -63,28 +85,32 @@ const App = () => {
     }
   }, []);
 
-  const handleWeightInput = (value) => {
+  const handleWeightInput = (value: string) => {
     const weight = Number(value);
     const updatedWeights = { ...weights, [activeTab]: weight };
     setWeights(updatedWeights);
     localStorage.setItem("weights", JSON.stringify(updatedWeights));
   };
 
-  const tabs = ["Deadlift", "Bench Press", "Back Squat"];
+  const tabs: ("Deadlift" | "BenchPress" | "BackSquat")[] = [
+    "Deadlift",
+    "BenchPress",
+    "BackSquat",
+  ];
   const percentages = [95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40];
 
-  const roundToNearestHalf = (num) => {
+  const roundToNearestHalf = (num: number): number => {
     return Math.round(num * 2) / 2;
   };
 
-  const roundToNearestLoadableWeight = (weight) => {
+  const roundToNearestLoadableWeight = (weight: number): number => {
     const remainder = weight % 5;
     if (remainder === 0) return weight;
     return remainder < 2.5 ? weight - remainder : weight + (5 - remainder);
   };
 
-  const calculateWeight = (percentage) => {
-    const maxWeight = weights[activeTab];
+  const calculateWeight = (percentage: number) => {
+    const maxWeight = delayedWeights[activeTab];
     const totalWeight = roundToNearestHalf((maxWeight * percentage) / 100);
     const roundedWeight = roundToNearestLoadableWeight(totalWeight);
     const perSide = roundToNearestHalf((roundedWeight - 45) / 2);
@@ -102,7 +128,7 @@ const App = () => {
         justifyContent: "center",
         minHeight: "100vh",
         backgroundColor: "#f5f5f5",
-        color: "#333", // Set a dark text color
+        color: "#333",
       }}
     >
       <Box textAlign="center" mb={4}>
@@ -140,6 +166,8 @@ const App = () => {
       <Grid container spacing={2} justifyContent="center" alignItems="center">
         {percentages.map((percentage) => {
           const { totalWeight, perSide } = calculateWeight(percentage);
+          if (totalWeight < 45) return null;
+
           const breakdown = calculateWeightBreakdown(perSide);
 
           return (
@@ -165,7 +193,7 @@ const App = () => {
                         mt={3}
                       >
                         {[...breakdown].reverse().map((plate, index) => (
-                          <Weight key={index} plate={plate} />
+                          <Weight key={index} plate={plate} direction="left" />
                         ))}
                         <Box
                           sx={{
@@ -199,6 +227,7 @@ const App = () => {
                           <Weight
                             key={index + breakdown.length}
                             plate={plate}
+                            direction="right"
                           />
                         ))}
                       </Box>
