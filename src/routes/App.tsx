@@ -46,7 +46,7 @@ const groupPlates = (plates: number[]): { plate: number; count: number }[] => {
 };
 
 const App: React.FC = () => {
-  const { settings, updateSettings } = useSettings();
+  const { settings } = useSettings();
   const [weights, setWeights] = useState<{
     [key: string]: number;
   }>({
