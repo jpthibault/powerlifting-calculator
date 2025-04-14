@@ -152,14 +152,14 @@ const App: React.FC = () => {
         </Typography>
       </Box>
 
-      <Box display="flex" justifyContent="center" mb={4}>
+      <Box display="flex" justifyContent="center" px={2} mb={4}>
         {settings.exerciseTypes.map((type) => (
           <Button
             key={type.id}
             variant={activeTab === type.name ? "contained" : "outlined"}
             color="primary"
             onClick={() => setActiveTab(type.name)}
-            sx={{ mx: 1 }}
+            sx={{ mx: 0.5 }}
           >
             {type.name}
           </Button>
