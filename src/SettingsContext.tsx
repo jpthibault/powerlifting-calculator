@@ -5,6 +5,7 @@ interface Settings {
   delay: number;
   borderColors: { plate: number; color: string | null }[];
   exerciseTypes: { id: number; name: string }[];
+  barbellWeight: number;
 }
 
 interface SettingsContextType {

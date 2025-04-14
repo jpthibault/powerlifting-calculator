@@ -65,6 +65,21 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({
           color: "#333",
         }}
       >
+        <Button
+          onClick={onClose}
+          sx={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            minWidth: "auto",
+            padding: 0,
+          }}
+        >
+          <Typography variant="body2" color="textSecondary">
+            ✕
+          </Typography>
+        </Button>
+
         <Typography variant="h4" component="h1" gutterBottom>
           Settings
         </Typography>
@@ -106,6 +121,23 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({
           ))}
           <Button variant="outlined" onClick={addExerciseType} sx={{ mt: 2 }}>
             Add Exercise Type
+          </Button>
+        </Box>
+
+        <Box mb={4} width="100%">
+          <Typography variant="h6">Barbell Weight</Typography>
+          <Button
+            variant={settings.barbellWeight === 45 ? "contained" : "outlined"}
+            onClick={() => handleChange("barbellWeight", 45)}
+            sx={{ mr: 2 }}
+          >
+            45 lbs
+          </Button>
+          <Button
+            variant={settings.barbellWeight === 35 ? "contained" : "outlined"}
+            onClick={() => handleChange("barbellWeight", 35)}
+          >
+            35 lbs
           </Button>
         </Box>
 

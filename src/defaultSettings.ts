@@ -1,5 +1,6 @@
 const defaultSettings = {
   delay: 300,
+  barbellWeight: 45,
   borderColors: [
     { plate: 45, color: "blue" },
     { plate: 35, color: null },

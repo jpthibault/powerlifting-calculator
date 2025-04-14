@@ -10,12 +10,23 @@ import {
   Slide,
   Stack,
   Fade,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  ToggleButton,
+  ToggleButtonGroup,
+  Divider,
 } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { TransitionGroup } from "react-transition-group";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useSettings } from "../SettingsContext";
 import Settings from "./Settings";
+import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 
 interface WeightProps {
   plate: number;
@@ -46,7 +57,7 @@ const Plate: React.FC<WeightProps> = ({ plate, direction, delay = 0 }) => {
       <Box
         sx={{
           minWidth: 40,
-          height: "40px",
+          height: "60px", // Increased height to make the plates more realistic
           backgroundColor: "#f0f0f0",
           color: "#333",
           display: "flex",
@@ -55,6 +66,8 @@ const Plate: React.FC<WeightProps> = ({ plate, direction, delay = 0 }) => {
           borderRadius: "4px",
           border: `2px solid ${borderColor}`,
           fontSize: 12,
+          transform: "skewY(-10deg)", // Apply skew to replicate the plate design
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Add shadow for depth
         }}
       >
         {plate}
@@ -78,8 +91,20 @@ const calculateWeightBreakdown = (weight: number): number[] => {
   return breakdown;
 };
 
+const groupPlates = (plates: number[]): { plate: number; count: number }[] => {
+  const plateCounts: { [key: number]: number } = {};
+
+  plates.forEach((plate) => {
+    plateCounts[plate] = (plateCounts[plate] || 0) + 1;
+  });
+
+  return Object.entries(plateCounts)
+    .map(([plate, count]) => ({ plate: Number(plate), count }))
+    .sort((a, b) => b.plate - a.plate);
+};
+
 const App: React.FC = () => {
-  const { settings } = useSettings();
+  const { settings, updateSettings } = useSettings();
   const [weights, setWeights] = useState<{
     [key: string]: number;
   }>({
@@ -136,7 +161,7 @@ const App: React.FC = () => {
     const maxWeight = delayedWeights[activeTab];
     const totalWeight = roundToNearestHalf((maxWeight * percentage) / 100);
     const roundedWeight = roundToNearestLoadableWeight(totalWeight);
-    const perSide = roundToNearestHalf((roundedWeight - 45) / 2);
+    const perSide = roundToNearestHalf((roundedWeight - barbellWeight) / 2);
     return { totalWeight: roundedWeight, perSide };
   };
 
@@ -144,6 +169,17 @@ const App: React.FC = () => {
   const TRANSITION_DELAY = 500; // Delay in milliseconds
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [barbellWeight, setBarbellWeight] = useState(settings.barbellWeight);
+
+  const handleBarbellWeightChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newWeight: number
+  ) => {
+    if (newWeight !== null) {
+      setBarbellWeight(newWeight);
+      updateSettings({ ...settings, barbellWeight: newWeight });
+    }
+  };
 
   return (
     <Container
@@ -173,6 +209,20 @@ const App: React.FC = () => {
       >
         <SettingsIcon fontSize="large" />
       </Button>
+      <ToggleButtonGroup
+        value={barbellWeight}
+        exclusive
+        onChange={handleBarbellWeightChange}
+        aria-label="Barbell Weight"
+        sx={{ position: "absolute", top: 16, left: 16 }}
+      >
+        <ToggleButton value={45} aria-label="45 lbs">
+          <FitnessCenterIcon /> 45 lbs
+        </ToggleButton>
+        <ToggleButton value={35} aria-label="35 lbs">
+          <FitnessCenterIcon /> 35 lbs
+        </ToggleButton>
+      </ToggleButtonGroup>
       <Settings
         open={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
@@ -209,106 +259,90 @@ const App: React.FC = () => {
         />
       </Box>
 
-      <TransitionGroup style={{ width: "100%" }}>
-        <Stack spacing={2}>
-          {percentages.map((percentage) => {
-            const { totalWeight, perSide } = calculateWeight(percentage);
-            if (totalWeight < 45) return null;
+      <Box mb={4}>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableBody>
+              {[100, 95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40]
+                .sort((a, b) => b - a)
+                .map((percentage) => {
+                  const { totalWeight, perSide } = calculateWeight(percentage);
+                  if (totalWeight < 45) return null;
 
-            const breakdown = calculateWeightBreakdown(perSide);
+                  const breakdown = calculateWeightBreakdown(perSide);
 
-            return (
-              <Fade in>
-                <Card>
-                  <CardContent>
-                    <Typography
-                      variant="h6"
-                      component="h2"
-                      display="flex"
-                      alignItems="center"
-                    >
-                      {percentage}%
-                      <ArrowForwardIcon sx={{ mx: 1, color: "#333" }} />
-                      {Math.round(weights[activeTab] * (percentage / 100))} lbs
-                    </Typography>
-                    {totalWeight > 0 && (
-                      <Stack
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="center"
-                        spacing={1}
-                        mt={3}
-                      >
-                        <TransitionGroup>
-                          <Stack
-                            direction="row-reverse" // Use row-reverse to render biggest numbers first
-                            alignItems="center"
-                            justifyContent="center"
-                            spacing={1} // Add spacing between items
-                          >
-                            {breakdown.map((plate, index) => (
-                              <Plate
-                                key={`${plate}-${index}`}
-                                plate={plate}
-                                direction="right"
-                                delay={index * TRANSITION_DELAY}
-                              />
-                            ))}
-                          </Stack>
-                        </TransitionGroup>
-                        <Box
-                          sx={{
-                            flexGrow: 1,
-                            height: "4px",
-                            backgroundColor: "#ccc",
-                            margin: "0 8px",
-                            maxWidth: 200,
-                            minWidth: 120,
-                            position: "relative",
-                          }}
-                        >
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              position: "absolute",
-                              top: "-8px",
-                              left: "50%",
-                              transform: "translateX(-50%)",
-                              backgroundColor: "#f5f5f5",
-                              padding: "0 4px",
-                              borderRadius: "4px",
-                            }}
-                          >
-                            {breakdown.reduce(
-                              (sum, plate) => sum + plate * 2,
-                              45
-                            )}
-                          </Typography>
-                        </Box>
+                  return (
+                    <TableRow key={percentage}>
+                      <TableCell>
+                        <Typography variant="h5">{percentage}%</Typography>
+                        <Divider />
+                        <Typography variant="caption">
+                          {Math.round(weights[activeTab] * (percentage / 100))}{" "}
+                          lbs
+                        </Typography>
+                        <Divider />
+                        <Typography variant="caption">
+                          Bar load: {totalWeight} lbs
+                        </Typography>
+                        <Divider />
+                      </TableCell>
+
+                      <TableCell>
                         <Stack
                           direction="row"
                           alignItems="center"
-                          justifyContent="center"
+                          justifyContent="flex-start"
                           spacing={1}
                         >
-                          {breakdown.map((plate, index) => (
-                            <Plate
-                              key={`${plate}-${index + breakdown.length}`}
-                              plate={plate}
-                              direction="left"
-                              delay={index * TRANSITION_DELAY} // Use constant for delay
-                            />
-                          ))}
+                          {groupPlates(breakdown).map(
+                            ({ plate, count }, index) => (
+                              <Box
+                                sx={{
+                                  position: "relative",
+                                  pr: `${count * 5}px`,
+                                }}
+                                key={plate}
+                              >
+                                {[...Array(count)].map((_, i) => (
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      minWidth: 40,
+                                      height: "60px",
+                                      backgroundColor: "#f0f0f0",
+                                      color: "#333",
+                                      borderRadius: "4px",
+                                      border: `2px solid ${settings.borderColors.find((b) => b.plate === plate)?.color || "#ccc"}`,
+                                      fontSize: 12,
+                                      left: `${i * 5}px`,
+                                      marginTop: i ? `-60px` : 0, // Stack plates on top of each other
+                                      position: "relative",
+                                      zIndex: 100, // Stack plates visually
+                                      transform: "skewY(-10deg)", // Apply skew to replicate the plate design
+                                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Add shadow for depth
+                                    }}
+                                  >
+                                    <Typography>{plate}</Typography>
+                                    <Typography variant="caption">
+                                      x{count}
+                                    </Typography>
+                                  </Box>
+                                ))}
+                              </Box>
+                            )
+                          )}
                         </Stack>
-                      </Stack>
-                    )}
-                  </CardContent>
-                </Card>
-              </Fade>
-            );
-          })}
-        </Stack>
-      </TransitionGroup>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
     </Container>
   );
 };
