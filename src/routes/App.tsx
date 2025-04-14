@@ -13,10 +13,15 @@ import {
   TableRow,
   Paper,
   Divider,
+  Chip,
+  Card,
+  CardHeader,
+  CardContent,
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useSettings } from "../SettingsContext";
 import Settings from "./Settings";
+import { FitnessCenter } from "@mui/icons-material";
 
 const calculateWeightBreakdown = (weight: number): number[] => {
   const plates = [45, 35, 25, 10, 5, 2.5];
@@ -173,86 +178,82 @@ const App: React.FC = () => {
         />
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableBody>
-            {[100, 95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40]
-              .sort((a, b) => b - a)
-              .map((percentage) => {
-                const { totalWeight, perSide } = calculateWeight(percentage);
-                if (totalWeight < 45) return null;
+      {[100, 95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40]
+        .sort((a, b) => b - a)
+        .map((percentage) => {
+          const { totalWeight, perSide } = calculateWeight(percentage);
+          if (totalWeight < 45) return null;
 
-                const breakdown = calculateWeightBreakdown(perSide);
+          const breakdown = calculateWeightBreakdown(perSide);
 
-                return (
-                  <TableRow key={percentage}>
-                    <TableCell>
-                      <Typography variant="h5">{percentage}%</Typography>
-                      <Divider />
-                      <Typography variant="caption">
-                        {Math.round(weights[activeTab] * (percentage / 100))}{" "}
-                        lbs
-                      </Typography>
-                      <Divider />
-                      <Typography variant="caption">
-                        Bar load: {totalWeight} lbs
-                      </Typography>
-                      <Divider />
-                    </TableCell>
+          return (
+            <Card key={percentage} sx={{ mb: 1, width: "100%" }}>
+              <Stack direction="row" alignItems="center" spacing={1} p={1}>
+                <Typography variant="h6" sx={{ verticalAlign: "middle" }}>
+                  {percentage}%
+                </Typography>
+                <Typography variant="caption" sx={{ mr: "auto !important" }}>
+                  {Math.round(weights[activeTab] * (percentage / 100))} lbs
+                </Typography>
 
-                    <TableCell>
-                      <Stack
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="flex-start"
-                        spacing={1}
-                      >
-                        {groupPlates(breakdown).map(({ plate, count }) => (
-                          <Box
-                            sx={{
-                              position: "relative",
-                              pr: `${count * 5}px`,
-                            }}
-                            key={plate}
-                          >
-                            {[...Array(count)].map((_, i) => (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  minWidth: 40,
-                                  height: "60px",
-                                  backgroundColor: "#f0f0f0",
-                                  color: "#333",
-                                  borderRadius: "4px",
-                                  border: `2px solid ${settings.borderColors.find((b) => b.plate === plate)?.color || "#ccc"}`,
-                                  fontSize: 12,
-                                  left: `${i * 5}px`,
-                                  marginTop: i ? `-60px` : 0, // Stack plates on top of each other
-                                  position: "relative",
-                                  zIndex: 100, // Stack plates visually
-                                  transform: "skewY(-10deg)", // Apply skew to replicate the plate design
-                                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Add shadow for depth
-                                }}
-                              >
-                                <Typography>{plate}</Typography>
-                                <Typography variant="caption">
-                                  x{count}
-                                </Typography>
-                              </Box>
-                            ))}
-                          </Box>
-                        ))}
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                <Typography
+                  variant="caption"
+                  display="flex"
+                  alignItems="center"
+                >
+                  <FitnessCenter sx={{ mr: 0.5, fontSize: 14 }} />
+                  <strong style={{ fontSize: 16 }}>{totalWeight}</strong>
+                </Typography>
+              </Stack>
+              <Divider />
+              <CardContent>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="flex-start"
+                  spacing={1}
+                >
+                  {groupPlates(breakdown).map(({ plate, count }) => (
+                    <Box
+                      sx={{
+                        position: "relative",
+                        pr: `${count * 5}px`,
+                      }}
+                      key={plate}
+                    >
+                      {[...Array(count)].map((_, i) => (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            minWidth: 40,
+                            height: "60px",
+                            backgroundColor: "#f0f0f0",
+                            color: "#333",
+                            borderRadius: "4px",
+                            border: `2px solid ${settings.borderColors.find((b) => b.plate === plate)?.color || "#ccc"}`,
+                            fontSize: 12,
+                            left: `${i * 5}px`,
+                            marginTop: i ? `-60px` : 0, // Stack plates on top of each other
+                            position: "relative",
+                            zIndex: 100, // Stack plates visually
+                            transform: "skewY(-10deg)", // Apply skew to replicate the plate design
+                            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Add shadow for depth
+                          }}
+                        >
+                          <Typography>{plate}</Typography>
+                          <Typography variant="caption">x{count}</Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  ))}
+                </Stack>
+              </CardContent>
+            </Card>
+          );
+        })}
     </Container>
   );
 };
