@@ -6,7 +6,12 @@ import {
   TextField,
   Typography,
   Modal,
+  ToggleButtonGroup,
+  ToggleButton,
+  IconButton,
 } from "@mui/material";
+import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
+import CloseIcon from "@mui/icons-material/Close";
 import { useSettings } from "../SettingsContext";
 import defaultSettings from "../defaultSettings";
 
@@ -50,119 +55,159 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({
     handleChange("exerciseTypes", updatedExerciseTypes);
   };
 
+  const handleBarbellWeightChange = (
+    _: React.MouseEvent<HTMLElement>,
+    newWeight: number
+  ) => {
+    if (newWeight !== null) {
+      handleChange("barbellWeight", newWeight);
+    }
+  };
+
   return (
     <Modal open={open} onClose={onClose}>
       <Container
         maxWidth="sm"
         sx={{
           py: 4,
+          px: 3,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
+          justifyContent: "flex-start",
+          height: "90vh",
+          maxHeight: "90vh",
+          mt: "5vh",
+          mb: "5vh",
           backgroundColor: "#fff",
           color: "#333",
+          borderRadius: 1,
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        <Button
+        <IconButton
           onClick={onClose}
           sx={{
             position: "absolute",
-            top: 16,
-            right: 16,
-            minWidth: "auto",
-            padding: 0,
+            top: 8,
+            right: 8,
           }}
         >
-          <Typography variant="body2" color="textSecondary">
-            ✕
-          </Typography>
-        </Button>
+          <CloseIcon />
+        </IconButton>
 
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
+          sx={{ mb: 3, pt: 1 }}
+        >
           Settings
         </Typography>
 
-        <Box mb={4} width="100%">
-          <Typography variant="h6">Border Colors</Typography>
-          {settings.borderColors.map((border, index) => (
-            <Box key={border.plate} display="flex" alignItems="center" mb={2}>
-              <Typography sx={{ width: "50px" }}>{border.plate}:</Typography>
-              <TextField
-                value={border.color}
-                onChange={(e) => handleBorderColorChange(index, e.target.value)}
-                fullWidth
-              />
-            </Box>
-          ))}
-        </Box>
-
-        <Box mb={4} width="100%">
-          <Typography variant="h6">Exercise Types</Typography>
-          {settings.exerciseTypes.map((type) => (
-            <Box key={type.id} display="flex" alignItems="center" mb={2}>
-              <TextField
-                value={type.name}
-                onChange={(e) =>
-                  handleExerciseTypeChange(type.id, e.target.value)
-                }
-                fullWidth
-              />
-              <Button
-                variant="outlined"
-                color="error"
-                onClick={() => handleDeleteExerciseType(type.id)}
-                sx={{ ml: 2 }}
-              >
-                Delete
-              </Button>
-            </Box>
-          ))}
-          <Button variant="outlined" onClick={addExerciseType} sx={{ mt: 2 }}>
-            Add Exercise Type
-          </Button>
-        </Box>
-
-        <Box mb={4} width="100%">
-          <Typography variant="h6">Barbell Weight</Typography>
-          <Button
-            variant={settings.barbellWeight === 45 ? "contained" : "outlined"}
-            onClick={() => handleChange("barbellWeight", 45)}
-            sx={{ mr: 2 }}
-          >
-            45 lbs
-          </Button>
-          <Button
-            variant={settings.barbellWeight === 35 ? "contained" : "outlined"}
-            onClick={() => handleChange("barbellWeight", 35)}
-          >
-            35 lbs
-          </Button>
-        </Box>
-
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => {
-            alert("Settings saved!");
-            onClose();
+        <Box
+          sx={{
+            width: "100%",
+            overflow: "auto",
+            pr: 2,
+            flex: 1,
           }}
         >
-          Save Settings
-        </Button>
+          <Box mb={4} width="100%">
+            <Typography variant="h6">Border Colors</Typography>
+            {settings.borderColors.map((border, index) => (
+              <Box key={border.plate} display="flex" alignItems="center" mb={2}>
+                <Typography sx={{ width: "50px" }}>{border.plate}:</Typography>
+                <TextField
+                  value={border.color}
+                  onChange={(e) =>
+                    handleBorderColorChange(index, e.target.value)
+                  }
+                  fullWidth
+                />
+              </Box>
+            ))}
+          </Box>
 
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={() => {
-            updateSettings(defaultSettings);
-            localStorage.removeItem("settings");
+          <Box mb={4} width="100%">
+            <Typography variant="h6">Exercise Types</Typography>
+            {settings.exerciseTypes.map((type) => (
+              <Box key={type.id} display="flex" alignItems="center" mb={2}>
+                <TextField
+                  value={type.name}
+                  onChange={(e) =>
+                    handleExerciseTypeChange(type.id, e.target.value)
+                  }
+                  fullWidth
+                />
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => handleDeleteExerciseType(type.id)}
+                  sx={{ ml: 2 }}
+                >
+                  Delete
+                </Button>
+              </Box>
+            ))}
+            <Button variant="outlined" onClick={addExerciseType} sx={{ mt: 2 }}>
+              Add Exercise Type
+            </Button>
+          </Box>
+
+          <Box mb={4} width="100%">
+            <Typography variant="h6">Barbell Weight</Typography>
+            <ToggleButtonGroup
+              value={settings.barbellWeight}
+              exclusive
+              onChange={handleBarbellWeightChange}
+              aria-label="Barbell Weight"
+            >
+              <ToggleButton value={45} aria-label="45 lbs">
+                <FitnessCenterIcon sx={{ mr: 1 }} /> 45 lbs
+              </ToggleButton>
+              <ToggleButton value={35} aria-label="35 lbs">
+                <FitnessCenterIcon sx={{ mr: 1 }} /> 35 lbs
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+        </Box>
+
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            mt: 3,
+            pt: 2,
+            borderTop: "1px solid #eee",
           }}
-          sx={{ mt: 2 }}
         >
-          Reset to Default
-        </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              alert("Settings saved!");
+              onClose();
+            }}
+            fullWidth
+            sx={{ mb: 2 }}
+          >
+            Save Settings
+          </Button>
+
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={() => {
+              updateSettings(defaultSettings);
+              localStorage.removeItem("settings");
+            }}
+          >
+            Reset to Default
+          </Button>
+        </Box>
       </Container>
     </Modal>
   );

@@ -12,14 +12,11 @@ import {
   TableContainer,
   TableRow,
   Paper,
-  ToggleButton,
-  ToggleButtonGroup,
   Divider,
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useSettings } from "../SettingsContext";
 import Settings from "./Settings";
-import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 
 const calculateWeightBreakdown = (weight: number): number[] => {
   const plates = [45, 35, 25, 10, 5, 2.5];
@@ -111,17 +108,7 @@ const App: React.FC = () => {
   // Define a constant for the transition delay
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [barbellWeight, setBarbellWeight] = useState(settings.barbellWeight);
-
-  const handleBarbellWeightChange = (
-    _: React.MouseEvent<HTMLElement>,
-    newWeight: number
-  ) => {
-    if (newWeight !== null) {
-      setBarbellWeight(newWeight);
-      updateSettings({ ...settings, barbellWeight: newWeight });
-    }
-  };
+  const barbellWeight = settings.barbellWeight;
 
   return (
     <Container
@@ -133,7 +120,6 @@ const App: React.FC = () => {
         alignItems: "center",
         justifyContent: "center",
         minHeight: "100vh",
-        minWidth: 900,
         backgroundColor: "#f5f5f5",
         color: "#333",
         position: "relative",
@@ -151,20 +137,6 @@ const App: React.FC = () => {
       >
         <SettingsIcon fontSize="large" />
       </Button>
-      <ToggleButtonGroup
-        value={barbellWeight}
-        exclusive
-        onChange={handleBarbellWeightChange}
-        aria-label="Barbell Weight"
-        sx={{ position: "absolute", top: 16, left: 16 }}
-      >
-        <ToggleButton value={45} aria-label="45 lbs">
-          <FitnessCenterIcon /> 45 lbs
-        </ToggleButton>
-        <ToggleButton value={35} aria-label="35 lbs">
-          <FitnessCenterIcon /> 35 lbs
-        </ToggleButton>
-      </ToggleButtonGroup>
       <Settings
         open={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}

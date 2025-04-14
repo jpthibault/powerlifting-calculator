@@ -45,30 +45,23 @@ To create a simple one-page web application that helps powerlifters calculate tr
 ### 4. Responsive Design
 - The app is optimized for desktop with a minimum width of 900px.
 
-### 5. Barbell Weight Toggle
-- **Description:** A toggle button in the top-left corner of the main interface for selecting barbell weight.
-- **Options:** 
-  - 45 lbs (standard barbell)
-  - 35 lbs (women's barbell)
-- **Behavior:**
-  - Selection is saved in settings and persists across sessions.
-  - Changes immediately affect all weight calculations.
-
-### 6. Settings Page
+### 5. Settings Page
 - **Description:** A modal dialog accessible via a gear icon in the top-right corner.
 - **Features:**
   - Customize border colors for different weight plates.
   - Add, edit, or remove exercise types.
   - Select barbell weight (45 lbs or 35 lbs).
+- **UI Elements:**
+  - Close button in the top-right corner using a standard close icon.
+  - Text fields for color values.
+  - Text fields for exercise types with delete buttons.
+  - Toggle buttons for barbell weight selection.
+  - Save button to confirm changes and close dialog.
+  - Reset button to restore default settings.
 - **Behavior:**
   - All settings are stored in `localStorage` and persist across sessions.
   - Changes are dynamically applied to the application.
-- **UI Elements:**
-  - Text fields for color values.
-  - Text fields for exercise types with delete buttons.
-  - Toggle buttons for barbell weight.
-  - Save button to confirm changes and close dialog.
-  - Reset button to restore default settings.
+  - Modal has a fixed height with scrollable content for better usability.
 
 ---
 
@@ -87,7 +80,10 @@ To create a simple one-page web application that helps powerlifters calculate tr
    - The barbell plates visualization for each side of the barbell.
 
 4. **Change Settings:**
-   The user can access settings to customize colors, exercise types, and barbell weight.
+   - The user clicks the gear icon to access settings.
+   - Settings modal appears with scrollable content.
+   - User can adjust barbell weight, plate colors, and exercise types.
+   - User can save changes or reset to defaults.
 
 ---
 
@@ -114,7 +110,7 @@ To create a simple one-page web application that helps powerlifters calculate tr
 2. The weight breakdown should be accurate and rounded to the nearest 0.5 lbs for calculation, with final weights that can be loaded on a barbell.
 3. The app should be visually appealing with intuitive UI.
 4. Input validation should prevent invalid entries (e.g., letters, negative numbers).
-5. Settings should be easily accessible and changes should be immediately reflected.
+5. Settings should be easily accessible with a scrollable interface and changes should be immediately reflected.
 
 ---
 
