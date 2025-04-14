@@ -5,76 +5,21 @@ import {
   Container,
   TextField,
   Typography,
-  Card,
-  CardContent,
-  Slide,
   Stack,
-  Fade,
   Table,
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Paper,
   ToggleButton,
   ToggleButtonGroup,
   Divider,
 } from "@mui/material";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { TransitionGroup } from "react-transition-group";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useSettings } from "../SettingsContext";
 import Settings from "./Settings";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
-
-interface WeightProps {
-  plate: number;
-  direction: "left" | "right";
-  delay?: number; // New optional delay attribute
-}
-
-// Ensure the `in` prop is dynamically updated for all items
-const Plate: React.FC<WeightProps> = ({ plate, direction, delay = 0 }) => {
-  const { settings } = useSettings();
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShow(true), delay);
-    return () => clearTimeout(timer);
-  }, [delay]);
-
-  const borderColor =
-    settings.borderColors.find((b) => b.plate === plate)?.color || "#ccc";
-
-  return (
-    <Slide
-      direction={direction}
-      in={show} // Dynamically update the `in` prop
-      mountOnEnter
-      unmountOnExit
-    >
-      <Box
-        sx={{
-          minWidth: 40,
-          height: "60px", // Increased height to make the plates more realistic
-          backgroundColor: "#f0f0f0",
-          color: "#333",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          borderRadius: "4px",
-          border: `2px solid ${borderColor}`,
-          fontSize: 12,
-          transform: "skewY(-10deg)", // Apply skew to replicate the plate design
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Add shadow for depth
-        }}
-      >
-        {plate}
-      </Box>
-    </Slide>
-  );
-};
 
 const calculateWeightBreakdown = (weight: number): number[] => {
   const plates = [45, 35, 25, 10, 5, 2.5];
@@ -145,8 +90,6 @@ const App: React.FC = () => {
     localStorage.setItem("weights", JSON.stringify(updatedWeights));
   };
 
-  const percentages = [95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40];
-
   const roundToNearestHalf = (num: number): number => {
     return Math.round(num * 2) / 2;
   };
@@ -166,13 +109,12 @@ const App: React.FC = () => {
   };
 
   // Define a constant for the transition delay
-  const TRANSITION_DELAY = 500; // Delay in milliseconds
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [barbellWeight, setBarbellWeight] = useState(settings.barbellWeight);
 
   const handleBarbellWeightChange = (
-    event: React.MouseEvent<HTMLElement>,
+    _: React.MouseEvent<HTMLElement>,
     newWeight: number
   ) => {
     if (newWeight !== null) {
@@ -294,46 +236,44 @@ const App: React.FC = () => {
                           justifyContent="flex-start"
                           spacing={1}
                         >
-                          {groupPlates(breakdown).map(
-                            ({ plate, count }, index) => (
-                              <Box
-                                sx={{
-                                  position: "relative",
-                                  pr: `${count * 5}px`,
-                                }}
-                                key={plate}
-                              >
-                                {[...Array(count)].map((_, i) => (
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      minWidth: 40,
-                                      height: "60px",
-                                      backgroundColor: "#f0f0f0",
-                                      color: "#333",
-                                      borderRadius: "4px",
-                                      border: `2px solid ${settings.borderColors.find((b) => b.plate === plate)?.color || "#ccc"}`,
-                                      fontSize: 12,
-                                      left: `${i * 5}px`,
-                                      marginTop: i ? `-60px` : 0, // Stack plates on top of each other
-                                      position: "relative",
-                                      zIndex: 100, // Stack plates visually
-                                      transform: "skewY(-10deg)", // Apply skew to replicate the plate design
-                                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Add shadow for depth
-                                    }}
-                                  >
-                                    <Typography>{plate}</Typography>
-                                    <Typography variant="caption">
-                                      x{count}
-                                    </Typography>
-                                  </Box>
-                                ))}
-                              </Box>
-                            )
-                          )}
+                          {groupPlates(breakdown).map(({ plate, count }) => (
+                            <Box
+                              sx={{
+                                position: "relative",
+                                pr: `${count * 5}px`,
+                              }}
+                              key={plate}
+                            >
+                              {[...Array(count)].map((_, i) => (
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    minWidth: 40,
+                                    height: "60px",
+                                    backgroundColor: "#f0f0f0",
+                                    color: "#333",
+                                    borderRadius: "4px",
+                                    border: `2px solid ${settings.borderColors.find((b) => b.plate === plate)?.color || "#ccc"}`,
+                                    fontSize: 12,
+                                    left: `${i * 5}px`,
+                                    marginTop: i ? `-60px` : 0, // Stack plates on top of each other
+                                    position: "relative",
+                                    zIndex: 100, // Stack plates visually
+                                    transform: "skewY(-10deg)", // Apply skew to replicate the plate design
+                                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Add shadow for depth
+                                  }}
+                                >
+                                  <Typography>{plate}</Typography>
+                                  <Typography variant="caption">
+                                    x{count}
+                                  </Typography>
+                                </Box>
+                              ))}
+                            </Box>
+                          ))}
                         </Stack>
                       </TableCell>
                     </TableRow>
